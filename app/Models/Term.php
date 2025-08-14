@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Term extends Model
+{
+    use HasFactory;
+
+    protected $table = 'terms';
+
+    protected $fillable = [
+        'quiz_id',
+        'term',
+        'definition',
+    ];
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+}
