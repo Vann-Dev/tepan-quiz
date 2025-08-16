@@ -20,13 +20,13 @@ function Flashcard({ term, definition }: { term: string; definition: string }) {
                 style={{ transformStyle: "preserve-3d" }}
             >
                 <div
-                    className="absolute w-full h-full flex items-center justify-center backface-hidden bg-white dark:bg-zinc-900 rounded-xl shadow"
+                    className="absolute w-full h-full flex items-center justify-center backface-hidden bg-white px-4 py-2 dark:bg-zinc-900 rounded-xl shadow"
                     style={{ backfaceVisibility: "hidden" }}
                 >
                     <p className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">{term}</p>
                 </div>
                 <div
-                    className="absolute w-full h-full flex items-center justify-center backface-hidden bg-white dark:bg-zinc-900 rounded-xl shadow rotate-y-180"
+                    className="absolute w-full h-full flex items-center justify-center backface-hidden px-4 py-2 bg-white dark:bg-zinc-900 rounded-xl shadow rotate-y-180"
                     style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
                 >
                     <p className="text-2xl text-center whitespace-pre-line text-zinc-900 dark:text-zinc-100">{definition}</p>
