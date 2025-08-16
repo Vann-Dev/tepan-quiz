@@ -205,108 +205,25 @@ class QuizController extends Controller
         if ($terms->count() < 2) {
             return response()->json(['error' => 'Not enough terms for a learn session.'], 400);
         }
-        // Pick a random term for the question
-        $questionTerm = $terms->random();
-        // Get other terms for wrong answers
-        $otherTerms = $terms->where('id', '!=', $questionTerm->id)->shuffle()->take(3);
-        $choices = collect([$questionTerm->definition])
-            ->merge($otherTerms->pluck('definition'))
-            ->shuffle()
-            ->values();
+
+        $questions = $terms->map(function ($term) use ($terms) {
+            // Get other terms for wrong answers
+            $otherTerms = $terms->where('id', '!=', $term->id)->shuffle()->take(3);
+            $choices = collect([$term->definition])
+                ->merge($otherTerms->pluck('definition'))
+                ->shuffle()
+                ->values();
+            return [
+                'termId' => $term->id,
+                'term' => $term->term,
+                'choices' => $choices,
+                'answer' => $term->definition,
+            ];
+        })->shuffle()->values();
+
         return response()->json([
             'quizId' => $quiz->id,
-            'termId' => $questionTerm->id,
-            'term' => $questionTerm->term,
-            'choices' => $choices,
-            'answer' => $questionTerm->definition,
-        ]);
-    }
-
-    public function startLearnSession(Request $request, $quizId)
-    {
-        $quiz = Quiz::with('terms')->findOrFail($quizId);
-        if ($quiz->user_id !== $request->user()->id) {
-            abort(403, 'Unauthorized action.');
-        }
-        $terms = $quiz->terms;
-        if ($terms->count() < 2) {
-            return response()->json(['error' => 'Not enough terms for a learn session.'], 400);
-        }
-        $order = $terms->pluck('id')->shuffle()->values()->toArray();
-        $session = [
-            'order' => $order,
-            'current' => 0,
-            'wrong' => [],
-        ];
-        session(["learn_session_{$quizId}" => $session]);
-        return response()->json(['success' => true]);
-    }
-
-    public function answerLearnSession(Request $request, $quizId)
-    {
-        $quiz = Quiz::with('terms')->findOrFail($quizId);
-        if ($quiz->user_id !== $request->user()->id) {
-            abort(403, 'Unauthorized action.');
-        }
-        $sessionKey = "learn_session_{$quizId}";
-        $session = session($sessionKey);
-        if (!$session) {
-            return response()->json(['error' => 'Session not started.'], 400);
-        }
-        $order = $session['order'];
-        $current = $session['current'];
-        $wrong = $session['wrong'];
-        $termId = $order[$current] ?? null;
-        $term = $quiz->terms->firstWhere('id', $termId);
-        if (!$term) {
-            return response()->json(['error' => 'No more questions.'], 400);
-        }
-        $userAnswer = $request->input('answer');
-        $isCorrect = $userAnswer === $term->definition;
-        if ($isCorrect) {
-            // Remove from wrong if present
-            $wrong = array_filter($wrong, fn($id) => $id !== $termId);
-            $current++;
-        } else {
-            if (!in_array($termId, $wrong)) {
-                $wrong[] = $termId;
-            }
-        }
-        // If finished, but there are wrongs, repeat them
-        if ($current >= count($order) && count($wrong) > 0) {
-            $order = array_values($wrong);
-            $current = 0;
-            $wrong = [];
-        }
-        $session = [
-            'order' => $order,
-            'current' => $current,
-            'wrong' => $wrong,
-        ];
-        session([$sessionKey => $session]);
-
-        // Prepare next question
-        $nextTermId = $order[$current] ?? null;
-        $nextTerm = $quiz->terms->firstWhere('id', $nextTermId);
-        if (!$nextTerm) {
-            return response()->json(['finished' => true]);
-        }
-        // Get other terms for wrong answers
-        $otherTerms = $quiz->terms->where('id', '!=', $nextTerm->id)->shuffle()->take(3);
-        $choices = collect([$nextTerm->definition])
-            ->merge($otherTerms->pluck('definition'))
-            ->shuffle()
-            ->values();
-        return response()->json([
-            'quizId' => $quiz->id,
-            'termId' => $nextTerm->id,
-            'term' => $nextTerm->term,
-            'choices' => $choices,
-            'answer' => $nextTerm->definition,
-            'progress' => [
-                'current' => $current + 1,
-                'total' => count($order),
-            ],
+            'questions' => $questions,
         ]);
     }
 }
