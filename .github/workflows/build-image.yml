@@ -1,0 +1,43 @@
+name: Build and Push Docker Image
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+
+      - name: Lowercase repository
+        id: repository
+        uses: ASzc/change-string-case-action@ccb130a4e483d3e86287289183704dc9bf53e77e
+        with:
+          string: ${{ github.repository }}
+
+      - name: Get tag version
+        id: get_version
+        run: echo "::set-output name=VERSION::${GITHUB_REF#refs/tags/v}"
+
+      - name: Update version in package.json
+        run: |
+          VERSION=$(echo ${{ steps.get_version.outputs.VERSION }})
+          jq ".version = \"${VERSION}\"" package.json > package.tmp.json && mv package.tmp.json package.json
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@1f36f5b7a2d2f7bfd524795fc966e6d88c37baa9
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ steps.repository.outputs.lowercase }}:${{ steps.get_version.outputs.VERSION }}
+          build-args: |
+            INFISICAL_TOKEN=${{ secrets.INFISICAL_TOKEN }}
