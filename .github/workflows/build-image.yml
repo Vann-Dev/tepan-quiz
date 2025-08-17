@@ -38,6 +38,5 @@ jobs:
         with:
           context: .
           push: true
+          file: /docker/common/php-fpm/Dockerfile
           tags: ghcr.io/${{ steps.repository.outputs.lowercase }}:${{ steps.get_version.outputs.VERSION }}
-          build-args: |
-            INFISICAL_TOKEN=${{ secrets.INFISICAL_TOKEN }}
