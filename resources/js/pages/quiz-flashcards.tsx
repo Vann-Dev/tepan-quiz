@@ -72,6 +72,10 @@ export default function QuizFlashcards(params: {
                 title: params.title,
                 href: `/quizzes/${params.quizId}`,
             },
+            {
+                title: "Flashcards",
+                href: `/quizzes/${params.quizId}/flashcards`,
+            }
         ]}>
             <Head title={params.title} />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">

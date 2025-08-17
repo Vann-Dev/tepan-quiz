@@ -58,13 +58,15 @@ export default function Quiz(params: {
                                 </CardHeader>
                             </Card>
                         </Link>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-center">
-                                    🤔 Test
-                                </CardTitle>
-                            </CardHeader>
-                        </Card>
+                        <Link href={`/quizzes/${params.quizId}/test`}>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-center">
+                                        🤔 Test
+                                    </CardTitle>
+                                </CardHeader>
+                            </Card>
+                        </Link>
                     </div>
 
                     <Separator className="my-4" />

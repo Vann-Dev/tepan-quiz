@@ -226,4 +226,55 @@ class QuizController extends Controller
             'questions' => $questions,
         ]);
     }
+
+    public function test(Request $request, $quizId)
+    {
+        $quiz = \App\Models\Quiz::with('terms')->findOrFail($quizId);
+        if ($quiz->user_id !== $request->user()->id) {
+            abort(403, 'Unauthorized action.');
+        }
+        return Inertia::render('quiz-test', [
+            'quizId' => $quiz->id,
+            'title' => $quiz->title,
+            'description' => $quiz->description,
+            'terms' => $quiz->terms->map(function ($term) {
+                return [
+                    'id' => $term->id,
+                    'term' => $term->term,
+                    'definition' => $term->definition,
+                ];
+            }),
+        ]);
+    }
+
+    public function testSession(Request $request, $quizId)
+    {
+        $quiz = \App\Models\Quiz::with('terms')->findOrFail($quizId);
+        if ($quiz->user_id !== $request->user()->id) {
+            abort(403, 'Unauthorized action.');
+        }
+        $terms = $quiz->terms;
+        if ($terms->count() < 2) {
+            return response()->json(['error' => 'Not enough terms for a test.'], 400);
+        }
+        $count = (int) $request->query('count', $terms->count());
+        $count = max(1, min($count, $terms->count()));
+        $questions = $terms->shuffle()->take($count)->map(function ($term) use ($terms) {
+            $otherTerms = $terms->where('id', '!=', $term->id)->shuffle()->take(3);
+            $choices = collect([$term->definition])
+                ->merge($otherTerms->pluck('definition'))
+                ->shuffle()
+                ->values();
+            return [
+                'termId' => $term->id,
+                'term' => $term->term,
+                'choices' => $choices,
+                'answer' => $term->definition,
+            ];
+        })->values();
+        return response()->json([
+            'quizId' => $quiz->id,
+            'questions' => $questions,
+        ]);
+    }
 }

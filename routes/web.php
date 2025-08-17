@@ -25,6 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('quizzes/{quiz}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
     Route::get('quizzes/{quiz}/flashcards', [QuizController::class, 'flashcards'])->name('quizzes.flashcards');
     Route::get('quizzes/{quiz}/learn-session', [QuizController::class, 'learnSession'])->name('quizzes.learn.session');
+    Route::get('quizzes/{quiz}/test', [QuizController::class, 'test'])->name('quizzes.test');
+    Route::get('quizzes/{quiz}/test-session', [QuizController::class, 'testSession'])->name('quizzes.test.session');
 });
 
 require __DIR__ . '/settings.php';
