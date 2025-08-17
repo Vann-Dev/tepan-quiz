@@ -22,7 +22,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('quizzes/{quiz}/learn', [QuizController::class, 'learn'])->name('quizzes.learn');
     Route::delete('terms/{term}', [QuizController::class, 'deleteTerm'])->name('terms.destroy');
 
-    Route::get('quizzes/{quiz}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
     Route::get('quizzes/{quiz}/flashcards', [QuizController::class, 'flashcards'])->name('quizzes.flashcards');
     Route::get('quizzes/{quiz}/learn-session', [QuizController::class, 'learnSession'])->name('quizzes.learn.session');
     Route::get('quizzes/{quiz}/test', [QuizController::class, 'test'])->name('quizzes.test');

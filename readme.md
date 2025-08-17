@@ -11,10 +11,15 @@ Tepan Quiz is a modern Quizlet-like web application built with Laravel, Inertia.
 - User authentication (register, login, email verification)
 - Create, edit, and delete quizzes
 - Add, edit, import, and delete terms (flashcards) for each quiz
-- Study with flashcards and interactive learn mode
+- Study with Flashcard mode (flip cards)
+- Interactive Learn mode with session tracking and review
+- Test mode (multiple-choice quiz)
+- Profile and password settings pages
 - Responsive, modern UI with light/dark mode
 - Bulk import of terms with custom separators
 - Progress tracking in learn sessions
+- UI built with shadcn/ui and Radix UI components
+- Improved user menu and sidebar navigation
 
 ## Tech Stack
 
